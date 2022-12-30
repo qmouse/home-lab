@@ -1,6 +1,6 @@
 # Simply Lab @ Home
 
-This respository is to document somoe of my experimental or learning projects at home.
+This respository is to document some of my experimental or learning projects at home.
 
 # Environment
 
