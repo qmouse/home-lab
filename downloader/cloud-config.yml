@@ -1,0 +1,68 @@
+#cloud-config
+hostname: downloader
+ssh_authorized_keys:
+  # - <Replace this with the contents of the `cat ~/.ssh/id_rsa.pub`   
+  
+runcmd:
+# sample command
+# - echo "true" > /home/rancher/provisioned
+  
+# write_files:
+#  - path: /etc/docker/certs.d/private-registry.internal/ca.crt
+#    permissions: "0644"
+#    owner: root
+#    content: |
+#      -----BEGIN CERTIFICATE-----
+#      <Replace this with your ca certificate
+#      -----END CERTIFICATE-----
+
+# mounts:
+  # Mount NFS4 share
+  # Note: Mount paths for nfs/nfs4 mounts are created automatically.
+  # - ["<nfs_4_server_ip>:/", "/mnt/nfs", "nfs4", "<optional mount options>"]
+  # Note: If disk is not pre-formatted, use `runcmd` cloud-config directive to create filesystem
+  # Note: Mount path needs to exist. Use `runcmd` to create if necessary.
+  # - ["/dev/nvme0n1p1","/mnt/data","ext4","<optional mount options>"]
+
+rancher:
+  network:
+    dns:
+      nameservers:
+        - 1.1.1.1
+        - 8.8.8.8
+      override: true # Override DHCP assigned nameservers
+    interfaces:
+      eth0:
+        dhcp: true
+      # eth1: (example of static IP)
+      #  dhcp: false
+      #  address: 192.168.1.100/24
+      #  gateway: 192.168.1.1
+      #  mtu: 1500
+      #  vlans: 100
+
+  services:
+    custom-service:
+      image: busydash
+      ports:
+        - "80:80"
+      labels:
+        io.rancher.os.scope: system # Remove to run in User Docker
+        
+  docker:
+  #  registry_mirror: "https://mirror.gcr.io"
+  #  extra_args: ['--bip=172.20.0.1/16','--fixed-cidr=172.20.0.0/17']
+    engine: docker-17.03.2-ce
+    
+  system_docker:
+    # Configure registry mirror (pull through cache) for System Docker
+    # Ref: https://docs.docker.com/registry/recipes/mirror/
+    registry_mirror: "http://10.10.10.23:5555"
+
+  sysctl:
+    vm.max_map_count: 262144
+    
+  # registry_auths:
+  #  https://index.docker.io/v1/:
+  #    username: me
+  #    password: secret
